@@ -46,7 +46,7 @@ def one_cell(now, seed):
     comp_m = 1e9 * np.random.uniform ( 0.5, 1, (M, I) )
     # comp_sc = 1e9 * 2*np.ones([M,I])
     # comp_bs = 1e9 * np.random.uniform ( 2,10 , I )
-    comp_bs = 3* 1e9
+    comp_bs = 6* 1e9
     # comp_ue = 1e9 * np.random.uniform ( 2, 4, (N, I) )
     data = 1e3 * np.random.uniform ( 300, 500, (M, I) )
     task = np.multiply ( np.random.uniform ( 500, 1000, (M, I) ), data )
@@ -75,11 +75,11 @@ def one_cell(now, seed):
     tx_power_bs_max = math.pow ( 10, 49 / 10 )  # downlink power 49dBm
     tx_power_m_max = 1e-3*math.pow ( 10, 28 / 10 )  # uplink power 28dBm
     tx_power_m_max = math.pow(10, 28 / 10)  # uplink power 28dBm
-    bandwidth_max = 20 * 1e6  # bandwidth 20MHz
+    #bandwidth_max = 20 * 1e6  # bandwidth 20MHz
     carrier = 180  # KHz
     sigma2 = -174  # dBm/Hz
     sigma2_power = -100  # dBm
-    #bandwidth_max = 180*1e3*M*2
+    bandwidth_max = 180*1e3*M
 
     reference = 1
     factor = math.pow ( 10, -100 / 10 )

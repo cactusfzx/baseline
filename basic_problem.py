@@ -69,8 +69,8 @@ def solve_problem_func(env,alpha_parameter):
     c2_3 = [cp.sum(beta) <= 1, beta >= (1e-7)]
 
     c6 = [cp.multiply ( 1-alpha, task )/comp_m*time_scale<=t1]
-    c7b=[-cp.log(t3/time_scale)-cp.log(beta)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2(task/comp_bs)<=0]
-    c8b=[-cp.log(t2/time_scale)-cp.log(omega)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2(data/rate_m_itr)<=0]
+    c7b=[-cp.log(t3)-cp.log(beta)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2(task/comp_bs*time_scale)<=0]
+    c8b=[-cp.log(t2)-cp.log(omega)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2(data/rate_m_itr*time_scale)<=0]
     #c8 = [cp.multiply(eta,task/comp_bs)*time_scale<=t3]
     #c7 = [cp.multiply ( mu, data / rate_m_itr)*time_scale<=t2]
 
@@ -163,8 +163,8 @@ def solve_problem_func(env,alpha_parameter):
 
     plt.subplot(442)
     plt.title("data transmitting delay")
-    plt.plot(M_list, data/average_rate, '-*', color='b', label="full date transmitting delay with average bandwidth allocation")
-    plt.plot(M_list, (alpha.value*data)/(omega.value * rate_m_itr), '-o', color='r', label="optimized transmitting delay")
+    plt.plot(M_list, data/average_rate*time_scale, '-*', color='b', label="full date transmitting delay with average bandwidth allocation")
+    plt.plot(M_list, (alpha.value*data)/(omega.value * rate_m_itr)*time_scale, '-o', color='r', label="optimized transmitting delay")
     #plt.bar(x=M_list, height=np.ceil(data / average_rate*time_scale).reshape(M), width=1)
     plt.legend(fontsize='xx-small')
 
