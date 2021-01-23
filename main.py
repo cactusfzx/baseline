@@ -49,7 +49,8 @@ if __name__ == '__main__':
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
 now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
 seed = 1
-env = simulation_environment.one_cell(now, seed)
-print(env["I"])
+main_env = simulation_environment.one_cell(now, seed)
+print(main_env["I"])
+main_alpha_v = 1*np.ones([main_env["M"],main_env["I"]])
 
-basic_problem.solve_problem_func(env)
+basic_problem.solve_problem_func(env=main_env, alpha_parameter=main_alpha_v)
