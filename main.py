@@ -51,6 +51,30 @@ now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
 seed = 1
 main_env = simulation_environment.one_cell(now, seed)
 print(main_env["I"])
-main_alpha_v = 1*np.ones([main_env["M"],main_env["I"]])
 
-basic_problem.solve_problem_func(env=main_env, alpha_parameter=main_alpha_v)
+#initialize the iteration
+main_alpha_v = 0.1*np.ones([main_env["M"],main_env["I"]])
+
+result = []
+result.append(basic_problem.solve_problem_func(env=main_env, alpha_parameter=main_alpha_v)["problem6.value"])
+print(result[0])
+flag = 1
+alpha_itr = []
+alpha_itr.append(basic_problem.solve_problem_func(env=main_env, alpha_parameter=main_alpha_v)["alpha.value"])
+for itr in range(1,100):
+    flag = flag + 1
+    result.append(basic_problem.solve_problem_func(env=main_env, alpha_parameter=alpha_itr[itr-1])["problem6.value"])
+    if result[itr] ==0:
+        result[itr] = result[itr-1]
+    alpha_itr.append(basic_problem.solve_problem_func(env=main_env, alpha_parameter=alpha_itr[itr-1])["alpha.value"])
+    if abs(result[itr]-result[itr-1])/result[itr-1] <1e-7:
+        break
+
+#iteration = np.arange(1,100,[100])
+print(result)
+plt.subplot(449)
+plt.title("iteration result")
+plt.plot(np.arange(1,flag+1), result[0:flag], '-^')
+plt.show()
+
+

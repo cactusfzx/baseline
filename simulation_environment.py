@@ -39,7 +39,7 @@ def one_cell(now, seed):
     # ue_num = [2, 3, 4, 5, 6, 7]
     I = cell_num[0]
     # M = task_num[0]
-    M = task_num[3]
+    M = task_num[2]
     # N = ue_num
 
     # ----------computing environment---------#
