@@ -11,20 +11,24 @@ import random
 
 # random.seed(0)
 
-def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
+def solve_multi_time_problem_func(time,multi_time_env,alpha_parameter,beta_parameter,omega_parameter):
     # ----------parameters----------
-    I = env["I"]
-    M = env["M"]
-    h_ul = env["h_ul"]
-    bandwidth_max = env["bandwidth_max"]
-    tx_power_m_max = env["tx_power_m_max"]
-    comp_bs = env["comp_bs"]
-    comp_m = env["comp_m"]
-    task = env["task"]
-    tau = env["tau"]
-    data = env["data"]
-    M_list = env["M_list"]
-    time_scale = env["time_scale"]
+    I = multi_time_env["I"]
+    M = multi_time_env["M"]
+    h_ul = multi_time_env["h_ul"]
+    bandwidth_max = multi_time_env["bandwidth_max"]
+    tx_power_m_max = multi_time_env["tx_power_m_max"]
+    comp_bs = multi_time_env["comp_bs"]
+    comp_m = multi_time_env["comp_m"]
+
+    bs_remain_data = multi_time_env["bs_remain_data"]
+    local_remain_data = multi_time_env["local_remain_data"]
+    local_task= multi_time_env["local_task"]
+    bs_task = multi_time_env["bs_task"]
+
+
+    M_list = multi_time_env["M_list"]
+    time_scale = multi_time_env["time_scale"]
     rate_m_itr = bandwidth_max * np.log2 ( 1+tx_power_m_max * h_ul )
     average_rate = bandwidth_max * np.log2 ( 1+tx_power_m_max * h_ul )/M
     alpha_v = alpha_parameter
@@ -71,11 +75,23 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
     # bs server allocation constraints
     c2_3 = [cp.sum(beta) <= 1, beta >= (1e-7)]
 
-    c6 = [cp.multiply ( 1-alpha, task )/comp_m*time_scale<=t1]
-    c7b=[-cp.log(t3)-cp.log(beta)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2(task/comp_bs*time_scale)<=0]
-    c8b=[-cp.log(t2)-cp.log(omega)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2(data/rate_m_itr*time_scale)<=0]
-    #c8 = [cp.multiply(eta,task/comp_bs)*time_scale<=t3]
-    #c7 = [cp.multiply ( mu, data / rate_m_itr)*time_scale<=t2]
+
+    c6 = [cp.multiply ( 1-alpha, local_task )/comp_m*time_scale<=t1]
+    #c7b=[-cp.log(t3)-cp.log(beta)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2((local_task+bs_task)/comp_bs*time_scale)<=0]
+    #c8b=[-cp.log(t2)-cp.log(omega)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2(local_remain_data/rate_m_itr*time_scale)<=0]
+    #rewrite the c7b and c8b in elementwise method
+    c7b = []
+    c8b = []
+    for i in range(0,I):
+        for m in range(0,M):
+            if local_task[m,i]+bs_task[m,i] >= (1e-5):
+                c7b= c7b + [-cp.log(t3)-cp.log(beta[m,i])+np.log2(alpha_v[m,i])+cp.multiply(1/alpha_v[m,i]/np.log(2),(alpha[m,i]-alpha_v[m,i]))+np.log2((local_task[m,i]+bs_task[m,i])/comp_bs*time_scale)<=0]
+            if local_remain_data[m,i] >=(1e-5):
+                c8b = c8b + [-cp.log(t2)-cp.log(omega[m,i])+np.log2(alpha_v[m,i])+cp.multiply(1/alpha_v[m,i]/np.log(2),(alpha[m,i]-alpha_v[m,i]))+np.log2(local_remain_data[m,i]/rate_m_itr[m,i]*time_scale)<=0]
+
+
+    #c8 = [cp.multiply(eta,(local_task+bs_task)/comp_bs)*time_scale<=t3]
+    #c7 = [cp.multiply ( mu, local_remain_data / rate_m_itr)*time_scale<=t2]
 
     R1a2 = []
     for i in range(0,M):
@@ -93,23 +109,23 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
 
     # local computing constraints R1
     #R1 = [cp.ceil(cp.multiply(alpha, task)/comp_m) <= T]
-    R1 = [cp.ceil ( cp.multiply ( 1-alpha, task ) / comp_m ) -T <= 0]
+    R1 = [cp.ceil ( cp.multiply ( 1-alpha, local_task ) / comp_m ) -T <= 0]
     #R1 = [cp.ceil(alpha) - 10 <= 0]
     #assert R1[0].is_dqcp ()
     # offloading constraints R2
-    R2a = cp.ceil(cp.multiply(cp.multiply(alpha,task/comp_bs),cp.inv_pos(beta)))
-    R2b = cp.ceil(cp.multiply(cp.multiply(alpha,data/bandwidth_max*np.log2 ( 1+tx_power_m_max * h_ul )),cp.inv_pos(omega)))
+    R2a = cp.ceil(cp.multiply(cp.multiply(alpha,(local_task+bs_task)/comp_bs),cp.inv_pos(beta)))
+    R2b = cp.ceil(cp.multiply(cp.multiply(alpha,local_remain_data/bandwidth_max*np.log2 ( 1+tx_power_m_max * h_ul )),cp.inv_pos(omega)))
     R2 = [R2a+R2b <= T]
-    R2a1 = cp.ceil((cp.multiply(eta,task/comp_bs)))
+    R2a1 = cp.ceil((cp.multiply(eta,(local_task+bs_task)/comp_bs)))
 
-    objective2 = cp.Minimize(1/2*cp.max(cp.ceil ( cp.multiply ( alpha, task ) / comp_m )))
-    objective2 = cp.Minimize(cp.max(cp.ceil(cp.multiply(1-alpha, task/beta/comp_bs))))
+    objective2 = cp.Minimize(1/2*cp.max(cp.ceil ( cp.multiply ( alpha, local_task ) / comp_m )))
+    objective2 = cp.Minimize(cp.max(cp.ceil(cp.multiply(1-alpha, (local_task+bs_task)/beta/comp_bs))))
 
 
-    obj3_part1 = 1/2*cp.max(cp.ceil(cp.multiply(1-alpha,task/comp_m)))
-    obj3_part1 = 1 / 2 * cp.ceil ( cp.max ( cp.multiply ( 1-alpha, task / comp_m ) ) )
-    obj3_part2 = 1/2*cp.max(cp.ceil(cp.multiply(eta,task/comp_bs))+cp.ceil(cp.multiply(mu,data/rate_m_itr)))
-    obj3_part2 = 1 / 2 * cp.ceil (cp.max( cp.multiply ( eta, task / comp_bs ) ))+1/2*cp.ceil ( cp.max(cp.multiply ( mu, data / rate_m_itr ) ) )
+    obj3_part1 = 1/2*cp.max(cp.ceil(cp.multiply(1-alpha,local_task/comp_m)))
+    obj3_part1 = 1 / 2 * cp.ceil ( cp.max ( cp.multiply ( 1-alpha, local_task / comp_m ) ) )
+    obj3_part2 = 1/2*cp.max(cp.ceil(cp.multiply(eta,(local_task+bs_task)/comp_bs))+cp.ceil(cp.multiply(mu,local_remain_data/rate_m_itr)))
+    obj3_part2 = 1 / 2 * cp.ceil (cp.max( cp.multiply ( eta, (local_task+bs_task) / comp_bs ) ))+1/2*cp.ceil ( cp.max(cp.multiply ( mu, local_remain_data / rate_m_itr ) ) )
 
     obj3_part3 = cp.abs(obj3_part1-obj3_part2)
     objective3 = cp.Minimize(obj3_part1+obj3_part2+obj3_part3)
@@ -117,9 +133,9 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
 
     #assert obj3_part1.is_dqcp ()
     #assert obj3_part1.is_dcp()
-    #assert (cp.max(cp.ceil(cp.multiply(eta,task/comp_bs)))).is_dqcp()
-    #assert (cp.max(cp.ceil(cp.multiply(eta,task/comp_bs)))).is_dcp()
-    #assert (cp.ceil(cp.multiply(mu,data/rate_m_itr))).is_dqcp
+    #assert (cp.max(cp.ceil(cp.multiply(eta,local_task/comp_bs)))).is_dqcp()
+    #assert (cp.max(cp.ceil(cp.multiply(eta,local_task/comp_bs)))).is_dcp()
+    #assert (cp.ceil(cp.multiply(mu,local_remain_data/rate_m_itr))).is_dqcp
     #assert (cp.ceil(alpha)+cp.ceil(beta)).is_dqcp()
     #assert obj3_part2.is_dqcp ()
     #assert obj3_part3.is_dqcp ()
@@ -127,7 +143,7 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
 
 
     t = cp.Variable([M,I])
-    objective2 = cp.Minimize ( cp.max ( cp.ceil ( cp.multiply ( t, task / comp_bs ) ) ) )
+    objective2 = cp.Minimize ( cp.max ( cp.ceil ( cp.multiply ( t, (local_task+bs_task) / comp_bs ) ) ) )
     c4 = [(1-alpha)/beta <= t]
 
     objective6 = cp.Minimize(1/2*cp.ceil(t1+t2+t3+cp.abs(t1-t2-t3))+3/2)
@@ -137,7 +153,7 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
     varsigma = 1e-27
     obj7_func1 = 1/2*cp.ceil(t1+t2+t3+cp.abs(t1-t2-t3))+3/2
     obj7_func1 = 1 / 2 * (t1 + t2 + t3 + cp.abs(t1 - t2 - t3))
-    obj7_func2 = cp.sum(cp.multiply(1-alpha,varsigma*task*np.square(comp_m)))+cp.sum(tx_power_m_max*cp.multiply ( mu, data / rate_m_itr))
+    obj7_func2 = cp.sum(cp.multiply(1-alpha,varsigma*local_task*np.square(comp_m)))+cp.sum(tx_power_m_max*cp.multiply ( mu, local_remain_data / rate_m_itr))
     objective7 = cp.Minimize(rho*obj7_func1+upsilon*obj7_func2)
 
 
@@ -155,7 +171,7 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
         print("beta.value", beta.value)
         print("omega.value", omega.value)
 
-        np.ceil(data / rate_m_itr * M * time_scale)
+        np.ceil(local_remain_data / rate_m_itr * M * time_scale)
         # ----------data collection and depict-----------
         plt.clf()
         plt.subplot(441)
@@ -167,20 +183,20 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
         plt.legend()
 
         plt.subplot(442)
-        plt.title("data transmitting delay")
-        plt.plot(M_list, data / average_rate * time_scale, '-*', color='b',
+        plt.title("local_remain_data transmitting delay")
+        plt.plot(M_list, local_remain_data / average_rate * time_scale, '-*', color='b',
                  label="full date transmitting delay with average bandwidth allocation")
-        plt.plot(M_list, (alpha.value * data) / (omega.value * rate_m_itr) * time_scale, '-o', color='r',
+        plt.plot(M_list, (alpha.value * local_remain_data) / (omega.value * rate_m_itr) * time_scale, '-o', color='r',
                  label="optimized transmitting delay")
-        # plt.bar(x=M_list, height=np.ceil(data / average_rate*time_scale).reshape(M), width=1)
+        # plt.bar(x=M_list, height=np.ceil(local_remain_data / average_rate*time_scale).reshape(M), width=1)
         plt.legend(fontsize='xx-small')
 
         plt.subplot(443)
         plt.title("local_computing_delay")
         bar_width = 0.3
-        plt.bar(x=M_list, height=np.ceil(time_scale * task / comp_m).reshape(M), width=bar_width,
+        plt.bar(x=M_list, height=np.ceil(time_scale * local_task / comp_m).reshape(M), width=bar_width,
                 label='full local computing delay')
-        plt.bar(x=M_list + bar_width, height=np.ceil(time_scale * (1 - alpha.value) * task / comp_m).reshape(M),
+        plt.bar(x=M_list + bar_width, height=np.ceil(time_scale * (1 - alpha.value) * local_task / comp_m).reshape(M),
                 width=bar_width, label='remain local computing delay')
 
         plt.plot(M_list, problem6.value * np.ones(M), 'o', color='m', label="optimized delay")
@@ -191,10 +207,10 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
         plt.title("offloading_computing_delay")
 
         bar_width = 0.3  # 设置柱状图的宽度
-        plt.bar(x=M_list, height=(np.ceil(task / (comp_bs / M)) * time_scale).reshape(M), width=bar_width,
+        plt.bar(x=M_list, height=(np.ceil((local_task+bs_task) / (comp_bs / M)) * time_scale).reshape(M), width=bar_width,
                 label='average full offloading computing delay')
         plt.bar(x=M_list + bar_width,
-                height=(np.ceil(task * alpha.value / (beta.value * comp_bs) * time_scale)).reshape(M), width=bar_width,
+                height=(np.ceil(local_task * alpha.value / (beta.value * comp_bs) * time_scale)).reshape(M), width=bar_width,
                 label='optimized offloading computing delay')
 
         # 绘制并列柱状图
@@ -204,7 +220,7 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
 
         plt.subplot(445)
         plt.title("optimized local computing_delay gain")
-        plt.plot(M_list, (problem6.value - np.ceil(task / comp_m * time_scale)).reshape(M), 'x', color='r')
+        plt.plot(M_list, (problem6.value - np.ceil(local_task / comp_m * time_scale)).reshape(M), 'x', color='r')
         plt.plot(M_list, problem6.value * np.ones(M), 'o', color='m', label="optimized delay")
         plt.plot(M_list, t1.value * np.ones(M), 'v', color='g', label="local computing delay t1")
         plt.plot(M_list, t3.value * np.ones(M), '^', color='k', label="offloading computing delay t3")
@@ -245,8 +261,8 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
         '''
 
         print("func1.value", obj7_func1.value)
-        print("local computing energy", cp.sum(cp.multiply(1 - alpha, varsigma * task * np.square(comp_m))).value)
-        print("offloading energy", cp.sum(tx_power_m_max * cp.multiply(mu, data / rate_m_itr)).value)
+        print("local computing energy", cp.sum(cp.multiply(1 - alpha, varsigma * local_task * np.square(comp_m))).value)
+        print("offloading energy", cp.sum(tx_power_m_max * cp.multiply(mu, local_remain_data / rate_m_itr)).value)
         print("func2.value", obj7_func2.value)
 
 
@@ -257,10 +273,10 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
 
 
     except SolverError:
-        problem6.value = 0
+        problem6_result = 0
 
 
-        problem_result = {"problem6.value": problem6.value, "alpha.value": alpha_v,"beta.value":beta_v,"omega.value":omega_v}
+        problem_result = {"problem6.value": problem6_result, "alpha.value": alpha_v,"beta.value":beta_v,"omega.value":omega_v}
 
         return problem_result
 

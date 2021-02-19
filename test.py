@@ -45,5 +45,15 @@ print("The optimal value is", prob.value)
 print("A solution x is")
 print(x.value)
 
+a = 1
+print("test max",max(a,0))
+print("test min",min(a,0))
+
+one_cell_AoI = []
+single_user_AoI = []
+
+one_cell_AoI.append( np.random.randint(5,10,[3,2]))
+print(one_cell_AoI[0][2,1])
+
 
 

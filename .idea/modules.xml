@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/baseline.iml" filepath="$PROJECT_DIR$/.idea/baseline.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../../papper2/simulation17/.idea/simulation17.iml" filepath="$PROJECT_DIR$/../../../papper2/simulation17/.idea/simulation17.iml" />
     </modules>
   </component>
 </project>

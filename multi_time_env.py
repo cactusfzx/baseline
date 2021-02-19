@@ -14,7 +14,10 @@ import time
 import os.path as osp
 
 
-def one_cell(now, seed):
+def one_cell_multi_time(seed, time, main_env, state):
+
+
+
     np.random.seed ( seed )
     random.seed ( seed )
     interference = 1
@@ -48,10 +51,14 @@ def one_cell(now, seed):
     # comp_bs = 1e9 * np.random.uniform ( 2,10 , I )
     comp_bs = 6* 1e9
     # comp_ue = 1e9 * np.random.uniform ( 2, 4, (N, I) )
-    data = 1e3 * np.random.uniform ( 300, 500, (M, I) )
-    tau = np.random.uniform ( 500, 1000, (M, I) )
-    task = np.multiply ( tau, data )
+    #data = 1e3 * np.random.uniform ( 300, 500, (M, I) )
+    tau = main_env["tau"]
+    local_remain_data = state[0]
+    bs_remain_data = state[1]
+    local_task = np.multiply ( tau, local_remain_data )
+    bs_task = np.multiply(tau, bs_remain_data)
     M_list = np.arange ( 1, M+1, 1 )
+
 
 
 
@@ -118,7 +125,7 @@ def one_cell(now, seed):
     print("hul", h_ul)
     print ( rate_m / 1e6 )
     print ( M_list )
-    print ( data / rate_m )
+    #print ( data / rate_m )
 
     '''
     y = data / rate_m
@@ -142,5 +149,5 @@ def one_cell(now, seed):
     #plt.show ()
 
     one_cell_env = {"h_ul": h_ul, "I": I, "M": M, "tx_power_m_max": tx_power_m_max, "bandwidth_max":bandwidth_max, "comp_m":comp_m, "comp_bs":comp_bs,
-                   "task":task, "data":data, "M_list":M_list,"time_scale":time_scale, "tau":tau}
+                   "local_task":local_task, "bs_task":bs_task,"local_remain_data":local_remain_data,"bs_remain_data":bs_remain_data, "M_list":M_list,"time_scale":time_scale, "tau":tau}
     return one_cell_env
