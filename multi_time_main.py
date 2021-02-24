@@ -67,7 +67,9 @@ one_cell_AoI = []
 single_user_AoI = []
 
 single_user_AoI.append( np.random.randint(5,10,[main_env["M"],main_env["I"]]))
-one_cell_AoI.append(max(single_user_AoI[0]))
+one_cell_AoI.append(np.zeros(I))
+one_cell_AoI[0] = np.max(single_user_AoI[0],axis=0)
+
 
 state_alpha = []
 state_beta = []
@@ -130,10 +132,10 @@ for t in range(1,100):
     temp1 = np.zeros([M, I])
     temp2 = np.zeros([M, I])
     single_user_AoI.append(np.zeros([M,I]))
-    one_cell_AoI.append(0)
+    one_cell_AoI.append(np.zeros(I))
     #update state
-    for m in range(0,M):
-        for i in range(0,I):
+    for i in range(0,I):
+        for m in range(0,M):
 
             temp1[m,i] = max(state_local_remain_data[t-1][m,i]*state_alpha[t-1][m,i]-state_rate[t-1][m,i]*time_interval,0)+ max(state_local_remain_data[t-1][m,i]*(1-state_alpha[t-1][m,i])-comp_m[m,i]*time_interval/tau[m,i],0)
             temp2[m,i] = max(state_bs_remain_data[t-1][m,i]-comp_bs*state_beta[t-1][m,i]*time_interval/tau[m,i],0)+min(state_local_remain_data[t-1][m,i]*state_alpha[t-1][m,i], state_rate[t-1][m,i]*time_interval)
@@ -143,10 +145,10 @@ for t in range(1,100):
             else:
                 single_user_AoI[t][m, i] = single_user_AoI[t-1][m, i] + 1
 
-            if np.all(single_user_AoI) == 0:
-                one_cell_AoI[t] = 0
-            else:
-                one_cell_AoI[t] = one_cell_AoI[t-1] + 1
+        if np.max(single_user_AoI[t][0:M,i]) == 0:
+                one_cell_AoI[t][i] = 0
+        else:
+                one_cell_AoI[t][i] = np.max(single_user_AoI[t][0:M,i]) + 1
 
     state_local_remain_data.append(temp1)
     state_bs_remain_data.append(temp2)
@@ -211,7 +213,12 @@ plt.plot(np.arange(1,flag+1), result_value[0:flag], '-^')
 os.mkdir ( now )
 save_fn00 = 'Single_user_AoI.mat'
 save_array = single_user_AoI
-sio.savemat ( osp.join ( now, save_fn00 ), {'Single_user_AoI': save_array} )  # 和上面的一样，存在了array变量的第一行
+sio.savemat ( osp.join ( now, save_fn00 ), {'Single_user_AoI': save_array})
+
+# store cell AoI
+save_fn01 = 'one_cell_AoI.mat'
+save_array1 = one_cell_AoI
+sio.savemat ( osp.join ( now, save_fn01 ), {'One_cell_AoI': save_array1})
 
 # construct the single user AoI matrix into the vector and draw a 3D figure
 
