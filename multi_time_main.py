@@ -35,6 +35,7 @@ import basic_problem
 
 import multi_time_env
 import multi_time_problem
+import copy
 
 now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
 seed = 1
@@ -55,6 +56,7 @@ data = main_env["data"]
 M_list = main_env["M_list"]
 time_scale = main_env["time_scale"]
 time_interval = 1/time_scale
+T = 100 #total circle
 
 #initialize the iteration
 main_alpha_v = 0.5*np.ones([main_env["M"],main_env["I"]])
@@ -65,11 +67,29 @@ result = []
 
 one_cell_AoI = []
 single_user_AoI = []
+single_user_circle = []
+one_cell_circle = []
+single_user_change_circle = []
+single_user_circle_start_time = []
+for i in range(0,T):
+    single_user_circle_start_time.append(np.zeros([M, I]))
+
+
+one_cell_circle_start_time = np.zeros([T, I])
+one_cell_circle_flag  = np.zeros([T,I])
+for i in range (0,I):
+    one_cell_circle_flag[0:T,i] = np.linspace(1,101,100)
+
 
 single_user_AoI.append( np.random.randint(5,10,[main_env["M"],main_env["I"]]))
 one_cell_AoI.append(np.zeros(I))
 one_cell_AoI[0] = np.max(single_user_AoI[0],axis=0)
-
+single_user_circle.append(np.zeros([M,I]))
+one_cell_circle.append(np.zeros(I))
+single_user_change_circle.append(np.zeros([M,I]))
+single_user_change_circle.append(np.zeros([M,I]))
+single_circle_now = np.zeros([M,I])
+one_cell_circle_now = np.zeros(I)
 
 state_alpha = []
 state_beta = []
@@ -127,12 +147,16 @@ for itr in range(1,100):
         break
 #t is the scheduling cirlcle one t = 10ms
 
-for t in range(1,100):
+for t in range(1,T):
 
     temp1 = np.zeros([M, I])
     temp2 = np.zeros([M, I])
+    temp3 = copy.deepcopy(single_user_circle[t-1])
+    single_user_circle.append(temp3)
     single_user_AoI.append(np.zeros([M,I]))
     one_cell_AoI.append(np.zeros(I))
+    single_user_change_circle.append(copy.deepcopy(single_user_change_circle[t-1]))
+
     #update state
     for i in range(0,I):
         for m in range(0,M):
@@ -141,14 +165,46 @@ for t in range(1,100):
             temp2[m,i] = max(state_bs_remain_data[t-1][m,i]-comp_bs*state_beta[t-1][m,i]*time_interval/tau[m,i],0)+min(state_local_remain_data[t-1][m,i]*state_alpha[t-1][m,i], state_rate[t-1][m,i]*time_interval)
 
             if temp1[m,i] <=0 and temp2[m,i]<=0:
-                single_user_AoI[t][m,i] = 0
-            else:
-                single_user_AoI[t][m, i] = single_user_AoI[t-1][m, i] + 1
+                single_user_change_circle[t][m,i] = t
 
-        if np.max(single_user_AoI[t][0:M,i]) == 0:
-                one_cell_AoI[t][i] = 0
+                single_circle_now[m, i] = copy.deepcopy(single_circle_now[m, i]) + 1
+                single_user_circle_start_time[int(single_circle_now[m, i])][m, i] = t
+                r = copy.deepcopy(single_user_circle_start_time)
+                #single_user_AoI[t][m,i] = copy.deepcopy(single_user_AoI[t-1][m,i]) - ((r[int(single_circle_now[m, i])-1][m, i]-r[int(single_circle_now[m, i])-2][m, i]))
+                single_user_AoI[t][m, i] = t - r[int(single_circle_now[m, i]) - 1][m, i]
+
+                temp1[m,i] = data[m,i]
+                temp2[m,i] = 0
+                single_user_circle[t][m,i]=copy.deepcopy(single_user_circle[t-1][m,i])+1
+
+            else:
+                single_user_AoI[t][m, i] = copy.deepcopy(single_user_AoI[t-1][m, i]) + 1
+
+        a = single_user_circle[t]
+        one_cell_circle_now[i] = np.min(single_user_circle[t][0:M,i])
+        '''
+        if np.max(single_user_circle[t][0:M,i]) > np.max(single_user_circle[t-1][0:M,i]):
+
+            if np.sum(np.max(single_user_circle[t][0:M,i])==a[0:M,i])==1:
+                r = int(np.max(single_user_circle[t][0:M,i]))
+                one_cell_circle_start_time[r,i] = t
+        '''
+
+
+
+        if np.min(single_user_circle[t][0:M, i]) - np.min(single_user_circle[t-1][0:M, i])>0:
+                #x = int(np.min(single_user_circle[t - 1][0:M, i]) - 1)
+                # cell circle t now
+                x = int(np.min(single_user_circle[t][0:M, i]))
+                #
+                one_cell_circle_start_time[x, i] = copy.deepcopy(np.min(single_user_circle_start_time[x][0:M,i]))
+                #one_cell_AoI[t][i] = copy.deepcopy(one_cell_AoI[t-1][i]) - one_cell_circle_start_time[x-1, i]+one_cell_circle_start_time[x-2, i]
+                one_cell_AoI[t][i] = t - one_cell_circle_start_time[x - 1, i]
+
+
         else:
-                one_cell_AoI[t][i] = np.max(single_user_AoI[t][0:M,i]) + 1
+                one_cell_AoI[t][i] = copy.deepcopy(one_cell_AoI[t-1][i]) + 1
+
 
     state_local_remain_data.append(temp1)
     state_bs_remain_data.append(temp2)
@@ -210,15 +266,16 @@ plt.title("iteration result_value")
 plt.plot(np.arange(1,flag+1), result_value[0:flag], '-^')
 '''
 # store the result to matlab file
-os.mkdir ( now )
+dir_name =  "multi_time_multi_circle"+now
+os.mkdir ( dir_name )
 save_fn00 = 'Single_user_AoI.mat'
 save_array = single_user_AoI
-sio.savemat ( osp.join ( now, save_fn00 ), {'Single_user_AoI': save_array})
+sio.savemat ( osp.join ( dir_name, save_fn00 ), {'Single_user_AoI': save_array})
 
 # store cell AoI
 save_fn01 = 'one_cell_AoI.mat'
 save_array1 = one_cell_AoI
-sio.savemat ( osp.join ( now, save_fn01 ), {'One_cell_AoI': save_array1})
+sio.savemat ( osp.join ( dir_name, save_fn01 ), {'One_cell_AoI': save_array1})
 
 # construct the single user AoI matrix into the vector and draw a 3D figure
 

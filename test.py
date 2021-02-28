@@ -55,5 +55,13 @@ single_user_AoI = []
 one_cell_AoI.append( np.random.randint(5,10,[3,2]))
 print(one_cell_AoI[0][2,1])
 
+single_user_circle = []
+M=100
+I=3
+single_user_circle.append(np.random.random([M,I]))
+
+print(single_user_circle[0][0:M,0])
+print(np.min(single_user_circle[0][0:M,0]))
+
 
 
