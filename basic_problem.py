@@ -11,7 +11,7 @@ import random
 
 # random.seed(0)
 
-def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
+def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter,single_user_AoI_parameter,one_cell_AoI_parameter):
     # ----------parameters----------
     I = env["I"]
     M = env["M"]
@@ -30,6 +30,9 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
     alpha_v = alpha_parameter
     beta_v = beta_parameter
     omega_v = omega_parameter
+    single_user_AoI = single_user_AoI_parameter
+    one_cell_AoI = one_cell_AoI_parameter
+
 
     # ----------itration variable parameter----------
     # this part is defined to use the iteration variable in the subproblem
@@ -71,9 +74,9 @@ def solve_problem_func(env,alpha_parameter,beta_parameter,omega_parameter):
     # bs server allocation constraints
     c2_3 = [cp.sum(beta) <= 1, beta >= (1e-7)]
 
-    c6 = [cp.multiply ( 1-alpha, task )/comp_m*time_scale<=t1]
-    c7b=[-cp.log(t3)-cp.log(beta)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2(task/comp_bs*time_scale)<=0]
-    c8b=[-cp.log(t2)-cp.log(omega)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2(data/rate_m_itr*time_scale)<=0]
+    c6 = [cp.multiply ( 1-alpha, task )/comp_m*time_scale<=t1+1/2*single_user_AoI]
+    c7b=[-cp.log(t3-1/4*single_user_AoI)-cp.log(beta)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2(task/comp_bs*time_scale)<=0]
+    c8b=[-cp.log(t2-1/4*single_user_AoI)-cp.log(omega)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2(data/rate_m_itr*time_scale)<=0]
     #c8 = [cp.multiply(eta,task/comp_bs)*time_scale<=t3]
     #c7 = [cp.multiply ( mu, data / rate_m_itr)*time_scale<=t2]
 

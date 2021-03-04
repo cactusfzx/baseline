@@ -113,7 +113,7 @@ main_omega_v = 0.1*np.ones([main_env["M"],main_env["I"]])
 
 result_store = []
 
-result_store.append(basic_problem.solve_problem_func(env=main_env, alpha_parameter=main_alpha_v,beta_parameter=main_beta_v,omega_parameter=main_omega_v))
+result_store.append(basic_problem.solve_problem_func(env=main_env, alpha_parameter=main_alpha_v,beta_parameter=main_beta_v,omega_parameter=main_omega_v,single_user_AoI_parameter=single_user_AoI[0],one_cell_AoI_parameter=one_cell_AoI[0]))
 print(result_store[0])
 flag = 1
 result_value = []
@@ -128,7 +128,7 @@ for itr in range(1,100):
     flag = flag + 1
     result_store.append(
         basic_problem.solve_problem_func(env=main_env, alpha_parameter=alpha_itr[itr-1], beta_parameter=beta_itr[itr-1],
-                                         omega_parameter=beta_itr[itr-1]))
+                                         omega_parameter=beta_itr[itr-1],single_user_AoI_parameter=single_user_AoI[0],one_cell_AoI_parameter=one_cell_AoI[0]))
     result_value.append(result_store[itr]["problem6.value"])
 
     if result_value[itr] == 0:
@@ -215,7 +215,7 @@ for t in range(1,T):
     result_store = []
     result_store.append(
         multi_time_problem.solve_multi_time_problem_func(time=t,multi_time_env=multi_time_para, alpha_parameter=main_alpha_v, beta_parameter=main_beta_v,
-                                         omega_parameter=main_omega_v))
+                                         omega_parameter=main_omega_v,single_user_AoI_parameter=single_user_AoI[t],one_cell_AoI_parameter=one_cell_AoI[t]))
     print(result_store[0])
     flag = 1
     result_value = []
@@ -231,7 +231,7 @@ for t in range(1,T):
         result_store.append(
             multi_time_problem.solve_multi_time_problem_func(time=t,multi_time_env=multi_time_para, alpha_parameter=alpha_itr[itr - 1],
                                              beta_parameter=beta_itr[itr - 1],
-                                             omega_parameter=beta_itr[itr - 1]))
+                                             omega_parameter=beta_itr[itr - 1],single_user_AoI_parameter=single_user_AoI[t],one_cell_AoI_parameter=one_cell_AoI[t]))
         result_value.append(result_store[itr]["problem6.value"])
 
         if result_value[itr] == 0:
