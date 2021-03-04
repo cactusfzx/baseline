@@ -266,7 +266,7 @@ plt.title("iteration result_value")
 plt.plot(np.arange(1,flag+1), result_value[0:flag], '-^')
 '''
 # store the result to matlab file
-dir_name =  "multi_time_multi_circle"+now
+dir_name =  "multi_time_multi_circle_AoI_based_optimization"+now
 os.mkdir ( dir_name )
 save_fn00 = 'Single_user_AoI.mat'
 save_array = single_user_AoI
