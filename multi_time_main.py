@@ -107,7 +107,7 @@ state_bs_remain_data.append(np.zeros([M,I]))
 
 
 # solve optimization problem
-main_alpha_v = 0.5*np.ones([main_env["M"],main_env["I"]])
+main_alpha_v = 0.1*np.ones([main_env["M"],main_env["I"]])
 main_beta_v = 0.1*np.ones([main_env["M"],main_env["I"]])
 main_omega_v = 0.1*np.ones([main_env["M"],main_env["I"]])
 

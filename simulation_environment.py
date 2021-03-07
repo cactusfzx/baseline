@@ -20,7 +20,7 @@ def one_cell(now, seed):
     interference = 1
     psi = 4
     rou = 0
-    time_scale = 50 #1000ms=1 100ms=10 10ms=100 1ms=1000 20ms=50
+    time_scale = 20 #1000ms=1 100ms=10 10ms=100 1ms=1000 20ms=50 50ms=20
     scenario = [0, 1]
     # ---------------simulation environment---------------------
     cell_num = [1, 3, 7]

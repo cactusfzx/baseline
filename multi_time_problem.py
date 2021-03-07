@@ -77,19 +77,21 @@ def solve_multi_time_problem_func(time,multi_time_env,alpha_parameter,beta_param
     # bs server allocation constraints
     c2_3 = [cp.sum(beta) <= 1, beta >= (1e-7)]
 
-
-    c6 = [cp.multiply ( 1-alpha, local_task )/comp_m*time_scale<=t1]
+    c6 = [t1>=single_user_AoI]
+    c6 = c6 + [cp.multiply ( 1-alpha, local_task )/comp_m*time_scale+single_user_AoI<=t1]
     #c7b=[-cp.log(t3)-cp.log(beta)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2((local_task+bs_task)/comp_bs*time_scale)<=0]
     #c8b=[-cp.log(t2)-cp.log(omega)+np.log2(alpha_v)+cp.multiply(1/alpha_v/np.log(2),(alpha-alpha_v))+np.log2(local_remain_data/rate_m_itr*time_scale)<=0]
     #rewrite the c7b and c8b in elementwise method
-    c7b = []
-    c8b = []
+    c7b = [t3>=1/2*single_user_AoI]
+    c8b = [t2>=1/2*single_user_AoI]
     for i in range(0,I):
         for m in range(0,M):
             if local_task[m,i]+bs_task[m,i] >= (1e-5):
-                c7b= c7b + [-cp.log(t3)-cp.log(beta[m,i])+np.log2(alpha_v[m,i])+cp.multiply(1/alpha_v[m,i]/np.log(2),(alpha[m,i]-alpha_v[m,i]))+np.log2((local_task[m,i]+bs_task[m,i])/comp_bs*time_scale)<=0]
+                c7b= c7b + [-cp.log(t3-1/2*single_user_AoI[m,i])-cp.log(beta[m,i])+np.log2(alpha_v[m,i])+cp.multiply(1/alpha_v[m,i]/np.log(2),(alpha[m,i]-alpha_v[m,i]))+np.log2((local_task[m,i]+bs_task[m,i])/comp_bs*time_scale)<=0]
+
             if local_remain_data[m,i] >=(1e-5):
-                c8b = c8b + [-cp.log(t2)-cp.log(omega[m,i])+np.log2(alpha_v[m,i])+cp.multiply(1/alpha_v[m,i]/np.log(2),(alpha[m,i]-alpha_v[m,i]))+np.log2(local_remain_data[m,i]/rate_m_itr[m,i]*time_scale)<=0]
+                c8b = c8b + [-cp.log(t2-1/2*single_user_AoI[m,i])-cp.log(omega[m,i])+np.log2(alpha_v[m,i])+cp.multiply(1/alpha_v[m,i]/np.log(2),(alpha[m,i]-alpha_v[m,i]))+np.log2(local_remain_data[m,i]/rate_m_itr[m,i]*time_scale)<=0]
+
 
 
     #c8 = [cp.multiply(eta,(local_task+bs_task)/comp_bs)*time_scale<=t3]
