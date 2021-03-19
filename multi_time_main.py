@@ -84,7 +84,7 @@ for i in range (0,I):
 single_user_AoI.append( np.random.randint(5,10,[main_env["M"],main_env["I"]]))
 one_cell_AoI.append(np.zeros(I))
 one_cell_AoI[0] = np.max(single_user_AoI[0],axis=0)
-single_user_circle.append(np.zeros([M,I]))
+single_user_circle.append(np.ones([M,I]))
 one_cell_circle.append(np.zeros(I))
 single_user_change_circle.append(np.zeros([M,I]))
 single_user_change_circle.append(np.zeros([M,I]))
@@ -215,7 +215,7 @@ for t in range(1,T):
     result_store = []
     result_store.append(
         multi_time_problem.solve_multi_time_problem_func(time=t,multi_time_env=multi_time_para, alpha_parameter=main_alpha_v, beta_parameter=main_beta_v,
-                                         omega_parameter=main_omega_v,single_user_AoI_parameter=single_user_AoI[t],one_cell_AoI_parameter=one_cell_AoI[t]))
+                                         omega_parameter=main_omega_v,single_user_AoI_parameter=single_user_AoI[t],one_cell_AoI_parameter=one_cell_AoI[t],single_user_circle_parameter=single_user_circle[t]))
     print(result_store[0])
     flag = 1
     result_value = []
@@ -231,7 +231,7 @@ for t in range(1,T):
         result_store.append(
             multi_time_problem.solve_multi_time_problem_func(time=t,multi_time_env=multi_time_para, alpha_parameter=alpha_itr[itr - 1],
                                              beta_parameter=beta_itr[itr - 1],
-                                             omega_parameter=beta_itr[itr - 1],single_user_AoI_parameter=single_user_AoI[t],one_cell_AoI_parameter=one_cell_AoI[t]))
+                                             omega_parameter=beta_itr[itr - 1],single_user_AoI_parameter=single_user_AoI[t],one_cell_AoI_parameter=one_cell_AoI[t],single_user_circle_parameter=single_user_circle[t]))
         result_value.append(result_store[itr]["problem6.value"])
 
         if result_value[itr] == 0:
@@ -266,7 +266,7 @@ plt.title("iteration result_value")
 plt.plot(np.arange(1,flag+1), result_value[0:flag], '-^')
 '''
 # store the result to matlab file
-dir_name =  "multi_time_multi_circle_AoI_based_optimization"+now
+dir_name =  "multi_time_multi_circle_circle_based_optimization"+now
 os.mkdir ( dir_name )
 save_fn00 = 'Single_user_AoI.mat'
 save_array = single_user_AoI

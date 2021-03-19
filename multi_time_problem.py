@@ -11,7 +11,7 @@ import random
 
 # random.seed(0)
 
-def solve_multi_time_problem_func(time,multi_time_env,alpha_parameter,beta_parameter,omega_parameter,single_user_AoI_parameter,one_cell_AoI_parameter):
+def solve_multi_time_problem_func(time,multi_time_env,alpha_parameter,beta_parameter,omega_parameter,single_user_AoI_parameter,one_cell_AoI_parameter,single_user_circle_parameter):
     # ----------parameters----------
     I = multi_time_env["I"]
     M = multi_time_env["M"]
@@ -36,7 +36,8 @@ def solve_multi_time_problem_func(time,multi_time_env,alpha_parameter,beta_param
     omega_v = omega_parameter
     single_user_AoI = single_user_AoI_parameter
     onne_cell_AoI = one_cell_AoI_parameter
-
+    single_user_circle = single_user_circle_parameter
+    single_user_AoI = single_user_AoI*1/single_user_circle_parameter
     # ----------itration variable parameter----------
     # this part is defined to use the iteration variable in the subproblem
 
