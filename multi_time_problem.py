@@ -37,7 +37,11 @@ def solve_multi_time_problem_func(time,multi_time_env,alpha_parameter,beta_param
     single_user_AoI = single_user_AoI_parameter
     onne_cell_AoI = one_cell_AoI_parameter
     single_user_circle = single_user_circle_parameter
-    single_user_AoI = single_user_AoI*1/single_user_circle_parameter
+
+    for j in range(0,I):
+        print("before",j)
+        single_user_AoI[0:M,j] = single_user_AoI[0:M,j]*(1+np.max(single_user_circle[0:M,j])-single_user_circle[0:M,j])
+        print("after",j)
     # ----------itration variable parameter----------
     # this part is defined to use the iteration variable in the subproblem
 
@@ -178,74 +182,75 @@ def solve_multi_time_problem_func(time,multi_time_env,alpha_parameter,beta_param
 
         np.ceil(local_remain_data / rate_m_itr * M * time_scale)
         # ----------data collection and depict-----------
-        plt.clf()
-        plt.subplot(441)
-        plt.title("user_rate in M/s")
-        # plt.bar(x=M_list, height=(average_rate/1e6).reshape(M), width=1)
-        plt.plot(M_list, omega.value * rate_m_itr / 1e6, '-*', color='b', label="optimized rate")
-        plt.plot(M_list, average_rate / 1e6, '-o', color='r', label="average bandwidth allocation  rate")
 
-        plt.legend()
-
-        plt.subplot(442)
-        plt.title("local_remain_data transmitting delay")
-        plt.plot(M_list, local_remain_data / average_rate * time_scale, '-*', color='b',
-                 label="full date transmitting delay with average bandwidth allocation")
-        plt.plot(M_list, (alpha.value * local_remain_data) / (omega.value * rate_m_itr) * time_scale, '-o', color='r',
-                 label="optimized transmitting delay")
-        # plt.bar(x=M_list, height=np.ceil(local_remain_data / average_rate*time_scale).reshape(M), width=1)
-        plt.legend(fontsize='xx-small')
-
-        plt.subplot(443)
-        plt.title("local_computing_delay")
-        bar_width = 0.3
-        plt.bar(x=M_list, height=np.ceil(time_scale * local_task / comp_m).reshape(M), width=bar_width,
-                label='full local computing delay')
-        plt.bar(x=M_list + bar_width, height=np.ceil(time_scale * (1 - alpha.value) * local_task / comp_m).reshape(M),
-                width=bar_width, label='remain local computing delay')
-
-        plt.plot(M_list, problem6.value * np.ones(M), 'o', color='m', label="optimized delay")
-        plt.legend(fontsize='xx-small')  # 显示图例，即label
-        plt.xticks(x=M_list + bar_width / 2)  # 显示x坐标轴的标签,即tick_label,调整位置，使其落在两个直方图中间位置
-
-        plt.subplot(444)
-        plt.title("offloading_computing_delay")
-
-        bar_width = 0.3  # 设置柱状图的宽度
-        plt.bar(x=M_list, height=(np.ceil((local_task+bs_task) / (comp_bs / M)) * time_scale).reshape(M), width=bar_width,
-                label='average full offloading computing delay')
-        plt.bar(x=M_list + bar_width,
-                height=(np.ceil(local_task * alpha.value / (beta.value * comp_bs) * time_scale)).reshape(M), width=bar_width,
-                label='optimized offloading computing delay')
-
-        # 绘制并列柱状图
-
-        plt.legend()  # 显示图例，即label
-        plt.xticks(x=M_list + bar_width / 2)  # 显示x坐标轴的标签,即tick_label,调整位置，使其落在两个直方图中间位置
-
-        plt.subplot(445)
-        plt.title("optimized local computing_delay gain")
-        plt.plot(M_list, (problem6.value - np.ceil(local_task / comp_m * time_scale)).reshape(M), 'x', color='r')
-        plt.plot(M_list, problem6.value * np.ones(M), 'o', color='m', label="optimized delay")
-        plt.plot(M_list, t1.value * np.ones(M), 'v', color='g', label="local computing delay t1")
-        plt.plot(M_list, t3.value * np.ones(M), '^', color='k', label="offloading computing delay t3")
-        plt.plot(M_list, t2.value * np.ones(M), '*', color='b', label="transmitting delay t2")
-        plt.legend(fontsize='xx-small')
-
-        plt.subplot(446)
-        plt.title("optimized alpha beta")
-        plt.plot(M_list, alpha.value, '-v', label='alpha')
-        plt.plot(M_list, beta.value, '-x', label='beta')
-        plt.plot(M_list, omega.value, '^', label='omega')
-        plt.legend()
-
-        plt.subplot(447)
-        plt.title("optimized omega")
-        plt.plot(M_list, omega.value, '-^')
-
-        plt.subplot(448)
-        plt.title("optimized beta")
-        plt.plot(M_list, beta.value, '-^')
+        # plt.clf()
+        # plt.subplot(441)
+        # plt.title("user_rate in M/s")
+        # # plt.bar(x=M_list, height=(average_rate/1e6).reshape(M), width=1)
+        # plt.plot(M_list, omega.value * rate_m_itr / 1e6, '-*', color='b', label="optimized rate")
+        # plt.plot(M_list, average_rate / 1e6, '-o', color='r', label="average bandwidth allocation  rate")
+        #
+        # plt.legend()
+        #
+        # plt.subplot(442)
+        # plt.title("local_remain_data transmitting delay")
+        # plt.plot(M_list, local_remain_data / average_rate * time_scale, '-*', color='b',
+        #          label="full date transmitting delay with average bandwidth allocation")
+        # plt.plot(M_list, (alpha.value * local_remain_data) / (omega.value * rate_m_itr) * time_scale, '-o', color='r',
+        #          label="optimized transmitting delay")
+        # # plt.bar(x=M_list, height=np.ceil(local_remain_data / average_rate*time_scale).reshape(M), width=1)
+        # plt.legend(fontsize='xx-small')
+        #
+        # plt.subplot(443)
+        # plt.title("local_computing_delay")
+        # bar_width = 0.3
+        # plt.bar(x=M_list, height=np.ceil(time_scale * local_task / comp_m).reshape(M), width=bar_width,
+        #         label='full local computing delay')
+        # plt.bar(x=M_list + bar_width, height=np.ceil(time_scale * (1 - alpha.value) * local_task / comp_m).reshape(M),
+        #         width=bar_width, label='remain local computing delay')
+        #
+        # plt.plot(M_list, problem6.value * np.ones(M), 'o', color='m', label="optimized delay")
+        # plt.legend(fontsize='xx-small')  # 显示图例，即label
+        # plt.xticks(x=M_list + bar_width / 2)  # 显示x坐标轴的标签,即tick_label,调整位置，使其落在两个直方图中间位置
+        #
+        # plt.subplot(444)
+        # plt.title("offloading_computing_delay")
+        #
+        # bar_width = 0.3  # 设置柱状图的宽度
+        # plt.bar(x=M_list, height=(np.ceil((local_task+bs_task) / (comp_bs / M)) * time_scale).reshape(M), width=bar_width,
+        #         label='average full offloading computing delay')
+        # plt.bar(x=M_list + bar_width,
+        #         height=(np.ceil(local_task * alpha.value / (beta.value * comp_bs) * time_scale)).reshape(M), width=bar_width,
+        #         label='optimized offloading computing delay')
+        #
+        # # 绘制并列柱状图
+        #
+        # plt.legend()  # 显示图例，即label
+        # plt.xticks(x=M_list + bar_width / 2)  # 显示x坐标轴的标签,即tick_label,调整位置，使其落在两个直方图中间位置
+        #
+        # plt.subplot(445)
+        # plt.title("optimized local computing_delay gain")
+        # plt.plot(M_list, (problem6.value - np.ceil(local_task / comp_m * time_scale)).reshape(M), 'x', color='r')
+        # plt.plot(M_list, problem6.value * np.ones(M), 'o', color='m', label="optimized delay")
+        # plt.plot(M_list, t1.value * np.ones(M), 'v', color='g', label="local computing delay t1")
+        # plt.plot(M_list, t3.value * np.ones(M), '^', color='k', label="offloading computing delay t3")
+        # plt.plot(M_list, t2.value * np.ones(M), '*', color='b', label="transmitting delay t2")
+        # plt.legend(fontsize='xx-small')
+        #
+        # plt.subplot(446)
+        # plt.title("optimized alpha beta")
+        # plt.plot(M_list, alpha.value, '-v', label='alpha')
+        # plt.plot(M_list, beta.value, '-x', label='beta')
+        # plt.plot(M_list, omega.value, '^', label='omega')
+        # plt.legend()
+        #
+        # plt.subplot(447)
+        # plt.title("optimized omega")
+        # plt.plot(M_list, omega.value, '-^')
+        #
+        # plt.subplot(448)
+        # plt.title("optimized beta")
+        # plt.plot(M_list, beta.value, '-^')
 
         '''
         plt.subplot(449)
