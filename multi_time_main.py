@@ -85,11 +85,11 @@ single_user_AoI.append( np.random.randint(5,10,[main_env["M"],main_env["I"]]))
 one_cell_AoI.append(np.zeros(I))
 one_cell_AoI[0] = np.max(single_user_AoI[0],axis=0)
 single_user_circle.append(np.ones([M,I]))
-one_cell_circle.append(np.zeros(I))
+one_cell_circle.append(np.ones(I))
 single_user_change_circle.append(np.zeros([M,I]))
 single_user_change_circle.append(np.zeros([M,I]))
-single_circle_now = np.zeros([M,I])
-one_cell_circle_now = np.zeros(I)
+single_circle_now = np.ones([M,I])
+one_cell_circle_now = np.ones(I)
 
 state_alpha = []
 state_beta = []
