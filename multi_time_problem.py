@@ -2,10 +2,12 @@ import cvxpy as cp
 import numpy as np
 import matplotlib.pyplot as plt
 from cvxpy import SolverError
+import copy
 
 # import simulation_environment
 import matplotlib
 import random
+
 #import compute_rate_assist
 
 
@@ -38,12 +40,12 @@ def solve_multi_time_problem_func(time,multi_time_env,alpha_parameter,beta_param
     onne_cell_AoI = one_cell_AoI_parameter
     single_user_circle = single_user_circle_parameter
 
-    '''
+
     for j in range(0,I):
         print("before",j)
-        single_user_AoI[0:M,j] = single_user_AoI[0:M,j]*(1+np.max(single_user_circle[0:M,j])-single_user_circle[0:M,j])
+        single_user_AoI[0:M,j] =copy.deepcopy(single_user_AoI[0:M,j])+ np.max(single_user_AoI[0:M,j])*(np.max(single_user_circle[0:M,j])-single_user_circle[0:M,j])
         print("after",j)
-    '''
+
 
     # ----------itration variable parameter----------
     # this part is defined to use the iteration variable in the subproblem
