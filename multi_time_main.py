@@ -197,7 +197,8 @@ for t in range(1,T):
                 # cell circle t now
                 x = int(np.min(single_user_circle[t][0:M, i]))
                 #
-                one_cell_circle_start_time[x, i] = copy.deepcopy(np.min(single_user_circle_start_time[x][0:M,i]))
+                #one_cell_circle_start_time[x, i] = copy.deepcopy(np.min(single_user_circle_start_time[x][0:M,i]))
+                one_cell_circle_start_time[x, i] = copy.deepcopy(np.max(single_user_circle_start_time[x][0:M, i]))
                 #one_cell_AoI[t][i] = copy.deepcopy(one_cell_AoI[t-1][i]) - one_cell_circle_start_time[x-1, i]+one_cell_circle_start_time[x-2, i]
                 one_cell_AoI[t][i] = t - one_cell_circle_start_time[x - 1, i]
 

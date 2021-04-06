@@ -64,4 +64,10 @@ print(single_user_circle[0][0:M,0])
 print(np.min(single_user_circle[0][0:M,0]))
 
 
+x = cp.Variable()
+constraint  = [x<=3,x>=0.1]
+obj = cp.Minimize(2*cp.inv_pos(cp.ceil(cp.inv_pos(x))))
+
+prob = cp.Problem(obj, constraint)
+prob.solve(qcp=True, verbose=True)
 

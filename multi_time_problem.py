@@ -36,15 +36,22 @@ def solve_multi_time_problem_func(time,multi_time_env,alpha_parameter,beta_param
     alpha_v = alpha_parameter
     beta_v = beta_parameter
     omega_v = omega_parameter
-    single_user_AoI = single_user_AoI_parameter
-    onne_cell_AoI = one_cell_AoI_parameter
-    single_user_circle = single_user_circle_parameter
+    single_user_AoI = copy.deepcopy(single_user_AoI_parameter)
+    onne_cell_AoI = copy.deepcopy(one_cell_AoI_parameter)
+    single_user_circle = copy.deepcopy(single_user_circle_parameter)
+
+    '''
+    for i in range(0,I):
+        for m in range(0,M):
+            if np.min(single_user_circle[0:M,i])<=single_user_circle[m,i]:
+                single_user_AoI[m,i] = 0
+            else:
+                single_user_AoI[m, i] = single_user_AoI[m,i]*(1+np.max(single_user_circle[0:M,i])-single_user_circle[m,i])
+    '''
 
 
-    for j in range(0,I):
-        print("before",j)
-        single_user_AoI[0:M,j] =copy.deepcopy(single_user_AoI[0:M,j])+ np.max(single_user_AoI[0:M,j])*(np.max(single_user_circle[0:M,j])-single_user_circle[0:M,j])
-        print("after",j)
+
+
 
 
     # ----------itration variable parameter----------
