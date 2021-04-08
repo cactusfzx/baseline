@@ -81,7 +81,8 @@ for i in range (0,I):
     one_cell_circle_flag[0:T,i] = np.linspace(1,101,100)
 
 
-single_user_AoI.append( np.random.randint(5,10,[main_env["M"],main_env["I"]]))
+#single_user_AoI.append( np.random.randint(5,10,[main_env["M"],main_env["I"]]))
+single_user_AoI.append( np.zeros([main_env["M"],main_env["I"]]))
 one_cell_AoI.append(np.zeros(I))
 one_cell_AoI[0] = np.max(single_user_AoI[0],axis=0)
 single_user_circle.append(np.ones([M,I]))
@@ -171,7 +172,9 @@ for t in range(1,T):
                 single_user_circle_start_time[int(single_circle_now[m, i])][m, i] = t
                 r = copy.deepcopy(single_user_circle_start_time)
                 #single_user_AoI[t][m,i] = copy.deepcopy(single_user_AoI[t-1][m,i]) - ((r[int(single_circle_now[m, i])-1][m, i]-r[int(single_circle_now[m, i])-2][m, i]))
-                single_user_AoI[t][m, i] = t - r[int(single_circle_now[m, i]) - 1][m, i]
+
+                #single_user_AoI[t][m, i] = t - r[int(single_circle_now[m, i]) - 1][m, i]
+                single_user_AoI[t][m, i] = 0
 
                 temp1[m,i] = data[m,i]
                 temp2[m,i] = 0

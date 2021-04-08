@@ -39,6 +39,7 @@ def solve_multi_time_problem_func(time,multi_time_env,alpha_parameter,beta_param
     single_user_AoI = copy.deepcopy(single_user_AoI_parameter)
     onne_cell_AoI = copy.deepcopy(one_cell_AoI_parameter)
     single_user_circle = copy.deepcopy(single_user_circle_parameter)
+    single_user_AoI = np.zeros([M,I])
 
     '''
     for i in range(0,I):
