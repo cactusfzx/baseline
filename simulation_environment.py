@@ -20,7 +20,7 @@ def one_cell(now, seed):
     interference = 1
     psi = 4
     rou = 0
-    time_scale = 100 #100ms=10 10ms=100
+    time_scale = 20 #100ms=10 10ms=100 50ms=20
     scenario = [0, 1]
     # ---------------simulation environment---------------------
     cell_num = [1, 3, 7]
@@ -48,8 +48,9 @@ def one_cell(now, seed):
     # comp_bs = 1e9 * np.random.uniform ( 2,10 , I )
     comp_bs = 6* 1e9
     # comp_ue = 1e9 * np.random.uniform ( 2, 4, (N, I) )
-    data = 1e3 * np.random.uniform ( 300, 500, (M, I) )
-    task = np.multiply ( np.random.uniform ( 500, 1000, (M, I) ), data )
+    data = 1e3 * np.random.uniform(300, 500, (M, I))
+    tau = np.random.uniform(500, 1000, (M, I))
+    task = np.multiply(tau, data)
     M_list = np.arange ( 1, M+1, 1 )
 
     # ----------cell location----------#
